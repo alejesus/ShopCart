@@ -1,0 +1,27 @@
+{
+	"name": "luizfelipelopes/shopcart",
+	"description": "Application Shop Cart for to use in a Ecommerce.",
+	"minimum-stability": "stable",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Luiz Felipe Lopes",
+			"email": "luizfelipelopesti@gmail.com",
+			"role": "Developer"
+		}
+	],
+	"config": {
+		"vendor-dir": "vendor"
+	},
+	"autoload": {
+		"psr-4": {
+			"Source\\": "source/"
+		},
+		"files": [
+			"source/Config.php"
+		]
+	},
+	"require": {
+		"league/plates": "v4.0.0-alpha"
+	}
+}
