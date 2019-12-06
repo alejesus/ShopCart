@@ -13,7 +13,6 @@ use Source\core\Router;
  */
 abstract class Controller
 {
-
     protected $view;
     protected $router;
 
@@ -27,6 +26,29 @@ abstract class Controller
         
         $this->view = Engine::create(dirname(ROOT, 1) . '/themes/', 'php');
         $this->view->addData(['router' => $this->router]);
+    }
+
+    /**
+     * Exibe mensagem de erro padrão do sistema em ajax.
+     * Displays standard system error message in ajax.
+     **/
+    public function ajaxMessage(string $message, string $type) : string
+    {
+        return "<div class=\"message {$type}\">{$message}</div>";
+    }
+
+    /**
+     * Filtra os dados enviados via formulário.
+     * Filters the data submitted via the form.
+     * @return array|null
+     */
+    protected function filterPostRequest():  ? array
+    {
+        $getPost = filter_input_array(INPUT_POST, FILTER_DEFAULT);
+        $setPost = array_map('strip_tags', $getPost);
+        $Post    = array_map('trim', $setPost);
+
+        return $Post;
     }
 
     /**
@@ -45,22 +67,6 @@ abstract class Controller
         require $path;
 
         return true;
-
-    }
-
-    protected function filterPostRequest():  ? array
-    {
-
-        $getPost = filter_input_array(INPUT_POST, FILTER_DEFAULT);
-        $setPost = array_map('strip_tags', $getPost);
-        $Post    = array_map('trim', $setPost);
-
-        if (!empty($Post['router'])) {
-            unset($Post['router']);
-        }
-
-        return $Post;
-
     }
 
     /**
@@ -71,14 +77,4 @@ abstract class Controller
     {
         echo 'Erro 404';
     }
-
-    /**
-     * Exibe mensagem de erro padrão do sistema em ajax.
-     * Displays standard system error message in ajax.
-     **/
-    public function ajaxMessage(string $message, string $type) : string
-    {
-        return "Erro: " . $message . ' Type: ' . $type;
-    }
-
 }

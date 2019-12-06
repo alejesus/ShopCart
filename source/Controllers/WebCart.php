@@ -8,6 +8,7 @@ use Source\Facades\ApplicationOrder;
 use Source\Facades\Identification;
 use Source\Models\Cart;
 use Source\Models\Product;
+use Exception;
 
 /**
  * Classe responsável pelas interações com o carrinho de compras.
@@ -15,7 +16,6 @@ use Source\Models\Product;
  */
 class WebCart extends Controller
 {
-
     use SaveCartTrait;
 
     private $order;
@@ -47,10 +47,6 @@ class WebCart extends Controller
     {
         $products = (new Product)->find()->fetch(true);
 
-        if (!$products) {
-            return;
-        }
-
         echo $this->view->render($this->order->dirApp() . '/home', ['products' => $products]);
     }
 
@@ -69,17 +65,16 @@ class WebCart extends Controller
      **/
     public function add(array $data): void
     {
-
-        $id      = filter_var($data['id'], FILTER_VALIDATE_INT);
+        $id      = (!empty($data['id']) ? filter_var($data['id'], FILTER_VALIDATE_INT) : 0);
         $product = (new Product)->findById($id);
 
-        if (!$id || !$product) {
-            echo $this->ajaxMessage('Erro ao adicionar o produto', 'error');
+        if (empty($id) || empty($product)) {
+            $jSon['error'] = $this->ajaxMessage('Erro ao adicionar o produto', 'error');
+            echo json_encode($jSon);
             return;
         }
 
         echo json_encode($this->cart->add($product)->cart());
-
     }
 
     /**
@@ -88,17 +83,16 @@ class WebCart extends Controller
      **/
     public function remove(array $data): void
     {
-
-        $id      = filter_var($data['id'], FILTER_VALIDATE_INT);
+        $id      = (!empty($data['id']) ? filter_var($data['id'], FILTER_VALIDATE_INT) : 0);
         $product = (new Product)->findById($id);
 
-        if (!$id || !$product) {
-            echo $this->ajaxMessage('Erro ao remover o produto', 'error');
+        if (empty($id) || empty($product)) {
+            $jSon['error'] = $this->ajaxMessage('Erro ao remover o produto', 'error');
+            echo json_encode($jSon);
             return;
         }
 
         echo json_encode($this->cart->remove($product)->cart());
-
     }
 
     /**
@@ -116,35 +110,36 @@ class WebCart extends Controller
      **/
     public function finishCart()
     {
+        if(empty($this->cart->cart())){
+            $jSon['error'] = $this->ajaxMessage('Adicione algum produto ao carrinho', 'info');
+            echo json_encode($jSon);
+            return;
+        }
 
-        if (!$this->identification->identification()) {
+        try {
 
-            $this->order->addCart();
+            if (!$this->identification->identification()) {
 
-        } else {
+                $this->order->addCart();
 
-            $userId = $this->identification->identification()['id'];
+            } else {
 
-            $dataCart     = $this->cart->cart();
-            $dataShipment = ($this->order->shipment() ?? null);
+                $userId = $this->identification->identification()['id'];
+                $dataCart     = $this->cart->cart();
+                $dataShipment = ($this->order->shipment() ?? null);
 
-            $cartId = $this->saveCartDB($userId, $dataCart, $dataShipment);
-            $this->saveCartItemDB($cartId, $dataCart);
-
-            if ($this->error) {
-                $jSon['error'] = $this->error;
-                echo json_encode($jSon);
-                return;
+                $cartId = $this->saveCartDB($userId, $dataCart, $dataShipment);
+                $this->order->addCart($cartId);
             }
-
-            $this->order->addCart($cartId);
-
+            
+        } catch (Exception $e) {
+            $jSon['error'] = $e->getMessage();
+            echo json_encode($jSon);
+            return;
         }
 
         $jSon['url'] = $this->order->nextStepIdentification();
 
         echo json_encode($jSon);
-
     }
-
 }

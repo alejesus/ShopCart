@@ -32,10 +32,12 @@ $(function(){
 
 		$.post(url, data, function(payment){
 
-			console.log(payment);
+			if(payment.error){
+				console.log(payment.error);	
+			}
 
-			if(payment){
-				window.location.href = payment;
+			if(payment.url){
+				window.location.href = payment.url;
 			}
 
 		}, 'json');

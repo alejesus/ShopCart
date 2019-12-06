@@ -11,7 +11,6 @@ use Source\Facades\ApplicationOrder;
  */
 class WebConfirmation extends Controller
 {
-
     private $order;
 
     /**
@@ -43,9 +42,7 @@ class WebConfirmation extends Controller
      */
     public function clearOrder()
     {
-
         $this->order->clear();
-
     }
 
 }

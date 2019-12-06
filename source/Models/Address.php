@@ -19,7 +19,7 @@ class Address extends DataLayer
 
     public function __construct()
     {
-        parent::__construct(self::ENTITY, ['user_id', 'name', 'cep', 'logradouro',
+        parent::__construct(self::ENTITY, ['user_id', 'cep', 'logradouro',
             'number', 'complement', 'bairro', 'city', 'uf'], 'id', true);
     }
 }

@@ -24,6 +24,10 @@ $(function(){
 		**/
 		function ajaxIdentification(identification){
 
+			if(identification.error){
+				console.log(identification.error);
+			}	
+
 			if(identification.url){
 
 				window.location.href = identification.url;

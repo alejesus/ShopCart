@@ -13,7 +13,7 @@ header('Location: ' . $goToUrl);
 
 <form method="post" name="form" data-action="<?=$router->route('address.add');?>">
 
-	<label>Nome: <input id="name" type="text" name="name" value="" placeholder="Ex. Minha Casa" required></label><br>
+	<label>Nome: <input id="name" type="text" name="name" value="" placeholder="Ex. Minha Casa"></label><br>
 	<label>CEP: <input id="cep" type="text" name="cep" value="" required></label><br>
 	<label>Logradouro: <input id="logradouro" type="text" name="logradouro" value="" placeholder="Nome da Rua:" required></label><br>
 	<label>Número: <input id="number" type="text" name="number" value="" required></label><br>

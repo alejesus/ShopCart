@@ -8,6 +8,7 @@ use Source\Models\Cart;
 use Source\Models\Order;
 use Source\Models\OrderItem;
 use Source\Support\Payment;
+use Exception;
 
 /**
  * Classe responsável pela manipulação, tratamento e
@@ -79,40 +80,36 @@ class WebPayment extends Controller
      */
     public function withCreditCard(): void
     {
-
         $data = $this->filterPostRequest();
 
-        if (empty($data)) {
-            return;
-        }
+        try {
 
-        $data['installmentValue'] = number_format($data['installmentValue'], 2, '.', '');
+            $data = $this->validateData($data);
 
-        $this->supportPay->withCard($data);
-        $response = json_decode(json_encode(simplexml_load_string($this->supportPay->callback())), true);
+            $this->supportPay->withCard($data);
+            $response = json_decode(json_encode(simplexml_load_string($this->supportPay->callback())), true);
 
-        if (isset($response['error'])) {
-            return;
-        }
+            if (isset($response['error'])) {
+                $jSon['error'] = $this->ajaxMessage('Erro na API de pagamento', 'error');
+                echo json_encode($jSon);
+                return;
+            }
 
-        $this->updateCart();
-        $orderId = $this->saveOrderDB($data, $response);
-        $this->saveOrderItemsDB($orderId);
+            $this->updateCart();
+            $orderId = $this->saveOrderDB($data, $response);
+            $newOrder = (new Order())->findById($orderId);
 
-        if ($this->error) {
-            $jSon['error'] = $this->error;
+            $this->payment->add($newOrder);
+
+            $this->order->addPayment();
+
+        } catch (Exception $e) {
+            $jSon['error'] = $e->getMessage();
             echo json_encode($jSon);
             return;
         }
 
-        $newOrder = (new Order())->findById($orderId);
-
-        $this->payment->add($newOrder);
-
-        $this->order->addPayment();
-
         $this->nextStep();
-
     }
 
     /**
@@ -122,38 +119,36 @@ class WebPayment extends Controller
      */
     public function withOnlineDebt(): void
     {
-
         $data = $this->filterPostRequest();
 
-        if (empty($data)) {
-            return;
-        }
+        try {
 
-        $this->supportPay->withOnlineDebt($data);
-        $response = json_decode(json_encode(simplexml_load_string($this->supportPay->callback())), true);
+            $data = $this->validateData($data);
 
-        if (isset($response['error'])) {
-            return;
-        }
+            $this->supportPay->withOnlineDebt($data);
+            $response = json_decode(json_encode(simplexml_load_string($this->supportPay->callback())), true);
 
-        $this->updateCart();
-        $orderId = $this->saveOrderDB($data, $response);
-        $this->saveOrderItemsDB($orderId);
+            if (isset($response['error'])) {
+                $jSon['error'] = $this->ajaxMessage('Erro na API de pagamento', 'error');
+                echo json_encode($jSon);
+                return;
+            }
 
-        if ($this->error) {
-            $jSon['error'] = $this->error;
+            $this->updateCart();
+            $orderId = $this->saveOrderDB($data, $response);
+            $newOrder = (new Order())->findById($orderId);
+
+            $this->payment->add($newOrder);
+
+            $this->order->addPayment();
+            
+        } catch (Exception $e) {
+            $jSon['error'] = $e->getMessage();
             echo json_encode($jSon);
             return;
         }
 
-        $newOrder = (new Order())->findById($orderId);
-
-        $this->payment->add($newOrder);
-
-        $this->order->addPayment();
-
         $this->nextStep();
-
     }
 
     /**
@@ -166,35 +161,35 @@ class WebPayment extends Controller
 
         $data = $this->filterPostRequest();
 
-        if (empty($data)) {
-            return;
-        }
+        try {
 
-        $this->supportPay->withBillet($data);
-        $response = json_decode(json_encode(simplexml_load_string($this->supportPay->callback())), true);
+            $data = $this->validateData($data); 
 
-        if (isset($response['error'])) {
-            return;
-        }
+            $this->supportPay->withBillet($data);
+            $response = json_decode(json_encode(simplexml_load_string($this->supportPay->callback())), true);
 
-        $this->updateCart();
-        $orderId = $this->saveOrderDB($data, $response);
-        $this->saveOrderItemsDB($orderId);
+            if (isset($response['error'])) {
+                $jSon['error'] = $this->ajaxMessage('Erro na Api de pagamento!', 'error');
+                echo json_encode($jSon);
+                return;
+            }
 
-        if ($this->error) {
-            $jSon['error'] = $this->error;
+            $this->updateCart();
+            $orderId = $this->saveOrderDB($data, $response);
+            
+            $newOrder = (new Order())->findById($orderId);
+
+            $this->payment->add($newOrder);
+
+            $this->order->addPayment();
+            
+        } catch (Exception $e) {
+            $jSon['error'] = $e->getMessage();
             echo json_encode($jSon);
             return;
         }
 
-        $newOrder = (new Order())->findById($orderId);
-
-        $this->payment->add($newOrder);
-
-        $this->order->addPayment();
-
         $this->nextStep();
-
     }
 
     /**
@@ -204,7 +199,8 @@ class WebPayment extends Controller
      */
     public function nextStep(): void
     {
-        echo json_encode($this->order->nextStepConfirmation());
+        $jSon['url'] = $this->order->nextStepConfirmation();
+        echo json_encode($jSon);
     }
 
     /**
@@ -214,8 +210,7 @@ class WebPayment extends Controller
      */
     private function updateCart(): void
     {
-
-        if (!$this->order->shipment()) {
+        if(!$this->order->shipment()){
             return;
         }
 
@@ -231,10 +226,8 @@ class WebPayment extends Controller
         $cart->save();
 
         if ($cart->fail()) {
-            $this->error = $cart->fail()->getMessage();
-            return;
+            throw new Exception($this->ajaxMessage($cart->fail()->getMessage(), 'error'));
         }
-
     }
 
     /**
@@ -245,7 +238,6 @@ class WebPayment extends Controller
      */
     private function saveOrderDB(array $data, array $responseApi):  ? int
     {
-
         $user     = $this->order->user();
         $shipment = $this->order->shipment();
 
@@ -270,12 +262,12 @@ class WebPayment extends Controller
         $id                       = $order->save();
 
         if ($order->fail()) {
-            $this->error = $order->fail()->getMessage();
-            return null;
+            throw new Exception($this->ajaxMessage($order->fail()->getMessage(), 'error'));
         }
 
-        return $id;
+        $this->saveOrderItemsDB($id);
 
+        return $id;
     }
 
     /**
@@ -286,7 +278,6 @@ class WebPayment extends Controller
      */
     private function saveOrderItemsDB(int $orderId) : void
     {
-
         $items = $this->order->cart()['items'];
 
         foreach ($items as $item) {
@@ -304,11 +295,22 @@ class WebPayment extends Controller
             $itemOrder->save();
 
             if ($itemOrder->fail()) {
-                $this->error = $itemOrder->fail()->getMessage();
-                return;
+                throw new Exception($this->ajaxMessage($itemOrder->fail()->getMessage(), 'error'));
             }
-
         }
+    }
+
+    private function validateData(array $data): ?array
+    {
+        if (in_array('', $data)) {
+            throw new Exception($this->ajaxMessage('Preencha os campos obrigatórios!', 'warning'));
+        }
+
+        if($data['paymentMethod'] == 'creditCard'){
+            $data['installmentValue'] = number_format($data['installmentValue'], 2, '.', '');    
+        }
+
+        return $data;
     }
 
 }

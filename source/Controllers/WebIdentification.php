@@ -6,6 +6,7 @@ use Source\Facades\ApplicationOrder;
 use Source\Facades\Identification;
 use Source\Models\Cart;
 use Source\Models\User;
+use Exception;
 
 /**
  * Classe responsável pela fase de identificação/cadastro do usuário
@@ -82,33 +83,40 @@ class WebIdentification extends Controller
      **/
     public function signIn(array $data = null): void
     {
-
         $data = $this->filterPostRequest();
-
         $next = $data['next'];
         unset($data['next']);
 
-        $data = $this->validateData($data);
+        try {
 
-        $user = (new User)->find("email = :email", "email={$data['email']}")->fetch();
+            $data = $this->validateData($data);
 
-        if (!$user || $user->pass != $data['pass']) {
-            $this->error   = 'Email ou Senha incorretos!';
-            $jSon['error'] = $this->error;
+            $user = (new User)->find("email = :email", "email={$data['email']}")->fetch();
+
+            if (!$user || $user->pass != $data['pass']) {
+                $jSon['error'] = $this->ajaxMessage('Email ou Senha incorretos!', 'warning');
+                echo json_encode($jSon);
+                return;
+            }
+
+            $dataCart = $this->order->cart();
+            $dataShipment = ($this->order->shipment() ?? null);
+
+            if(!empty($dataCart)){
+                $cartId = $this->saveCartDB($user->id, $dataCart, $dataShipment);
+                $this->order->addCart($cartId);
+            }
+            
+        } catch (Exception $e) {
+            $jSon['error'] = $e->getMessage();
             echo json_encode($jSon);
             return;
         }
 
-        $cartId = $user->id;
-
-        $this->order->addCart($cartId);
-
         $this->identification->signIn($user);
-
         $this->order->addIdentification();
 
         $this->nextStep($next);
-
     }
 
     /**
@@ -118,36 +126,34 @@ class WebIdentification extends Controller
      **/
     public function signUp(array $data = null): void
     {
-
         $data = $this->filterPostRequest();
-
         $next = $data['next'];
         unset($data['next']);
+        
+        try {
 
-        $data = $this->validateData($data);
+            $data = $this->validateData($data);
 
-        $dataCart     = $this->order->cart();
-        $dataShipment = ($this->order->shipment() ?? null);
+            $userId = $this->saveUserDB($data);
 
-        $userId = $this->saveUserDB($data);
+            $dataCart     = $this->order->cart();
+            $dataShipment = ($this->order->shipment() ?? null);
 
-        $cartId = $this->saveCartDB($userId, $dataCart, $dataShipment);
-        $this->saveCartItemDB($cartId, $dataCart);
+            if(!empty($dataCart)){
+                $cartId = $this->saveCartDB($userId, $dataCart, $dataShipment);
+                $this->order->addCart($cartId);
+            }
+            
+            $this->identification->signUp((new User)->findById($userId));
+            $this->order->addIdentification();
 
-        if ($this->error) {
-            $jSon['error'] = $this->error;
+        } catch (Exception $e) {
+            $jSon['error'] = $e->getMessage();
             echo json_encode($jSon);
             return;
         }
 
-        $this->order->addCart($cartId);
-
-        $this->identification->signUp((new User)->findById($userId));
-
-        $this->order->addIdentification();
-
         $this->nextStep($next);
-
     }
 
     /**
@@ -158,7 +164,6 @@ class WebIdentification extends Controller
      */
     private function saveUserDB(array $data):  ? int
     {
-
         $newUser             = new User();
         $newUser->name       = $data['name'];
         $newUser->pass       = $data['pass'];
@@ -172,12 +177,10 @@ class WebIdentification extends Controller
         $idUser              = $newUser->save();
 
         if ($newUser->fail()) {
-            $this->error = $newUser->fail()->getMessage();
-            return null;
+            throw new Exception($this->ajaxMessage($newUser->fail()->getMessage(), 'error'));
         }
 
         return $idUser;
-
     }
 
     /**
@@ -199,7 +202,6 @@ class WebIdentification extends Controller
      */
     public function nextStep(string $next = null): void
     {
-
         $jSon['url'] = (!empty($next) ? $this->order->previousUrlIdentification($next) :
             (empty($this->order->cart()) ? $this->order->nextStepCart() :
                 $this->order->nextStepAddress()));
@@ -215,17 +217,12 @@ class WebIdentification extends Controller
      */
     private function validateData(array $data):  ? array
     {
-
         if (in_array('', $data)) {
-            $this->error = $this->ajaxMessage('Preencha os campos obrigatórios!', 'error');
-            echo json_encode($this->error);
-            return null;
+            throw new Exception($this->ajaxMessage('Preencha os campos obrigatórios!', 'warning'));
         }
 
         if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            $this->error = $this->ajaxMessage('Email inválido!', 'error');
-            echo json_encode($this->error);
-            return null;
+            throw new Exception($this->ajaxMessage('Email inválido!', 'warning'));
         }
 
         // Colocar validador de CPF depois
@@ -244,7 +241,5 @@ class WebIdentification extends Controller
         }
 
         return $data;
-
     }
-
 }

@@ -6,6 +6,7 @@ use Source\Facades\ApplicationOrder;
 use Source\Facades\DeliveryAddress;
 use Source\Models\Address;
 use Source\Support\Shipping;
+use Exception;
 
 /**
  * Classe responsável por tratar e manipular as informações entre a base de dados
@@ -57,24 +58,25 @@ class WebAddress extends Controller
      **/
     public function add(array $data): void
     {
-
         $data = $this->filterPostRequest();
-        $data = $this->validateData($data);
 
-        $id = $this->saveAddressBD($data);
+        try {
 
-        if ($this->error) {
-            $jSon['error'] = $this->error;
+            $data = $this->validateData($data);
+            $id = $this->saveAddressBD($data);
+
+            $this->address->add((new Address())->findById($id));    
+            $this->showShipping($this->address->address()->cep);
+            $this->order->addAddress(); 
+            
+        } catch (Exception $e) {
+
+            $jSon['error'] = $e->getMessage();
             echo json_encode($jSon);
             return;
+            
         }
-
-        $this->address->add((new Address())->findById($id));
-
-        $this->showShipping($this->address->address()->cep);
-
-        $this->order->addAddress();
-
+        
         $this->nextStep();
     }
 
@@ -86,10 +88,9 @@ class WebAddress extends Controller
      */
     private function saveAddressBD(array $data):  ? int
     {
-
         $newAddress             = new Address();
         $newAddress->user_id    = $this->order->showOrder()['user']->id;
-        $newAddress->name       = $data['name'];
+        $newAddress->name       = ($data['name'] ?? null);
         $newAddress->cep        = $data['cep'];
         $newAddress->logradouro = $data['logradouro'];
         $newAddress->number     = $data['number'];
@@ -100,12 +101,10 @@ class WebAddress extends Controller
         $id                     = $newAddress->save();
 
         if ($newAddress->fail()) {
-            $this->error = $newAddress->fail()->getMessage();
-            return null;
+            throw new Exception($this->ajaxMessage($newAddress->fail()->getMessage(), 'error'));
         }
 
         return $id;
-
     }
 
     /**
@@ -114,9 +113,7 @@ class WebAddress extends Controller
      **/
     public function showShipping(int $cep) : void
     {
-
         $data = [
-
             "nCdServico"          => "04014,04510",
             "sCepOrigem"          => "21921840",
             "sCepDestino"         => $cep,
@@ -131,23 +128,27 @@ class WebAddress extends Controller
             "sCdAvisoRecebimento" => "n",
             "StrRetorno"          => "xml",
             "nIndicaCalculo"      => 3,
-
         ];
 
         $this->shipping->byPriceDeadline($data);
         $arrayShipping = json_decode(json_encode(simplexml_load_string($this->shipping->callback())), true);
         $arrayFrete    = [];
 
+        if(isset($arrayShipping['cServico']['Erro'])){
+            $this->error = $arrayShipping['cServico']['Erro'];
+            throw new Exception($this->ajaxMessage('Erro nº' . 
+                $arrayShipping['cServico']['Erro'] .
+             ': Erro no frete', 'error'));
+        }
+
         foreach ($arrayShipping['cServico'] as $key => $frete) {
-
             $tipo         = ($frete["Codigo"] == '04014' ? 'SEDEX' : 'PAC');
-            $arrayFrete[] = ["code" => $frete["Codigo"], "type"                                                      => $tipo,
-                "value"                 => number_format(str_replace(',', '.', $frete["Valor"]), 2, '.', ''), "deadline" => $frete["PrazoEntrega"]];
-
+            $arrayFrete[] = ["code" => $frete["Codigo"], "type" => $tipo,
+                "value" => number_format(str_replace(',', '.', $frete["Valor"]), 2, '.', ''), 
+                "deadline" => $frete["PrazoEntrega"]];
         }
 
         $this->address->addShipping($arrayFrete[0]);
-
     }
 
     /**
@@ -156,15 +157,17 @@ class WebAddress extends Controller
     private function validateData(array $data):  ? array
     {
 
+        if(empty($data['name'])){
+            unset($data['name']);
+        }
+
         if (in_array('', $data)) {
-            $this->error = 'Preencha os campos obrigatórios!';
-            return null;
+            throw new Exception($this->ajaxMessage('Preencha os campos obrigatórios!', 'warning'));
         }
 
         $data['cep'] = str_replace(['.'], '', $data['cep']);
 
         return $data;
-
     }
 
     /**
@@ -173,7 +176,8 @@ class WebAddress extends Controller
      **/
     public function nextStep() : void
     {
-        echo json_encode($this->order->nextStepPayment());
+        $jSon['url'] = $this->order->nextStepPayment();
+        echo json_encode($jSon);
     }
 
     /**

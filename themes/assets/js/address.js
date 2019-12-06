@@ -13,8 +13,12 @@ $(function(){
 		$.post(url, data, function(address){
 			console.log(address);
 
-			if(address){
-				window.location.href = address;
+			if(address.error){
+				console.log(address.error);
+			}
+
+			if(address.url){
+				window.location.href = address.url;
 			}
 
 		}, 'json');

@@ -3,6 +3,7 @@ namespace Source\Controllers;
 
 use Source\Models\Cart;
 use Source\Models\CartItems;
+use Exception;
 
 /**
  * Trait responsável pelo cadastro do carrinho de compras na base de dados.
@@ -19,9 +20,8 @@ trait SaveCartTrait
      * @param array|null $dataShipment
      * @return int
      */
-    private function saveCartDB(int $userId, array $dataCart, array $dataShipment = null):  ? int
+    private function saveCartDB(int $userId, array $dataCart, array $dataShipment = null): ?int
     {
-
         $cart             = new Cart();
         $cart->user_id    = $userId;
         $cart->subtotal   = $dataCart['subtotal'];
@@ -38,9 +38,10 @@ trait SaveCartTrait
         $idCart = $cart->save();
 
         if ($cart->fail()) {
-            $this->error = $cart->fail()->getMessage();
-            return null;
+            throw new Exception($this->ajaxMessage($cart->fail()->getMessage(), 'error'));
         }
+
+        $this->saveCartItemDB($idCart, $dataCart);
 
         return $idCart;
     }
@@ -54,7 +55,6 @@ trait SaveCartTrait
      */
     private function saveCartItemDB(int $cartId, array $dataCart) : void
     {
-
         foreach ($dataCart['items'] as $item) {
 
             $itemCart             = new CartItems();
@@ -68,8 +68,7 @@ trait SaveCartTrait
             $itemCart->save();
 
             if ($itemCart->fail()) {
-                $this->error = $itemCart->fail()->getMessage();
-                return;
+                throw new Exception($this->ajaxMessage($itemCart->fail()->getMessage(), 'error'));
             }
 
         }

@@ -11,7 +11,7 @@ header('Location: ' . $goToUrl);
 
 	<h1>Payment FILE<h1>
 
-	<form method="post" data-action="<?=$router->route('payment.billet');?>">
+	<!-- <form method="post" data-action="<?=$router->route('payment.billet');?>">
 
 		<input id="session" type="text" name="session" value=""><br>
 		<input type="text" name="paymentMode" value="default"><br>
@@ -53,7 +53,7 @@ header('Location: ' . $goToUrl);
 		<button>Pagar</button>
 
 	 </form>
-
+ -->
 
 	<!-- <form method="post" data-action="<?=$router->route('payment.onlinedebit');?>">
 
@@ -102,7 +102,7 @@ header('Location: ' . $goToUrl);
 	</form>
  -->
 
-<!-- <form method="post" data-action="<?=$router->route('payment.creditcard');?>">
+<form method="post" data-action="<?=$router->route('payment.creditcard');?>">
 
 		<input id="session" type="text" name="session" value=""><br>
 		<input type="text" name="paymentMode" value="default"><br>
@@ -175,7 +175,7 @@ header('Location: ' . $goToUrl);
 		<button>Pagar</button>
 
 	</form>
- -->
+
 <?php $v->start('scripts'); ?>
 <script type="text/javascript" src="<?=URL_DIRECTPAYMENT_PAGSEGURO;?>"></script>
 <?php require path('js/payment.php'); ?>
