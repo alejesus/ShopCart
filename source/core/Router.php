@@ -2,19 +2,18 @@
 
 namespace Source\core;
 
+use Exception;
+
 /**
  * Classe responsável pelo tratamento de todas as páginas do sistema.
  * Class responsible for handling all system pages.
  */
 class Router
 {
-
-    protected $url;
-    protected $route;
-    protected $method;
-    protected $urlMethod;
-    protected $params = [];
-    protected $path;
+    private $url;
+    private $routeGroup;
+    private $page;
+    private $params;
     private $group;
     private $controllerDispatch;
     private $methodDispatch;
@@ -27,15 +26,12 @@ class Router
      * Receives and handles the url of the current request when instantiating the class.
      * Defines the path, url, and urlMethod variables globally.
      **/
-    public function __construct(string $path = null)
+    public function __construct(string $namespace = null)
     {
-
-        $this->path      = (!empty($path) ? $path . '/' : dirname(ROOT, 1) . '/themes/');
+        $this->namespace = $namespace;
         $getUrl          = strip_tags(trim(filter_input(INPUT_GET, 'url', FILTER_DEFAULT)));
         $setUrl          = (!empty($getUrl) ? $getUrl : 'index');
         $this->url       = explode('/', $setUrl);
-        $this->urlMethod = ($this->url[0] == 'index' ? 'home' : $this->url[0]);
-
     }
 
     /**
@@ -50,26 +46,20 @@ class Router
      */
     public function route(string $triggers, array $params = null, string $group = null): string
     {
-
         $actions    = explode('.', $triggers);
         $controller = $actions[0];
         $method     = (!empty($actions[1]) ? '/' . $actions[1] : '');
         $params     = (!empty($params) ? '/' . implode('/', array_values($params)) : '');
 
         if ($controller == 'web') {
-
             return HOME . $method . $params;
-
         }
 
         if (!empty($group)) {
-
             return HOME . '/' . $group . '/' . $controller . $method . $params;
-
         }
 
         return HOME . '/' . $controller . $method . $params;
-
     }
 
     /**
@@ -82,24 +72,20 @@ class Router
      */
     public function group(string $group = null): void
     {
-
         $this->group = $group;
         $urls        = $this->url;
 
-        if (empty($this->group) && $urls[0] != 'index') {
-            $this->route  = 'home';
-            $this->method = $urls[0];
+        if (empty($group) && $urls[0] != 'index') {
+            $this->routeGroup  = 'home';
+            $this->page = $urls[0];
             unset($urls[0]);
             $this->params = (!empty($urls) ? $urls : []);
-
         } else {
-
-            $this->route = ($urls[0] == 'index' ? 'home' : $urls[0]);
+            $this->routeGroup = ($urls[0] == 'index' ? 'home' : $urls[0]);
             unset($urls[0]);
-            $this->method = (!empty($urls[1]) ? $urls[1] : '');
+            $this->page = (!empty($urls[1]) ? $urls[1] : '');
             unset($urls[1]);
-            $this->params = (!empty($urls) ? $urls : []);
-
+            $this->params = (!in_array('', $urls) ? $urls : []);
         }
 
     }
@@ -113,15 +99,15 @@ class Router
      */
     private function verifyGroup(): bool
     {
-        if (!isset($this->group) && $this->route != 'home') {
+        if (!isset($this->group) && $this->routeGroup != 'home') {
             return false;
         }
 
-        if (!empty($this->group) && $this->route == 'home') {
+        if (!empty($this->group) && $this->routeGroup == 'home') {
             return false;
         }
 
-        if (!empty($this->group) && $this->route != substr($this->group, 1)) {
+        if (!empty($this->group) && $this->routeGroup != substr($this->group, 1)) {
             return false;
         }
 
@@ -136,52 +122,43 @@ class Router
      * @param string|null $nickname
      * @return type
      */
-    private function requests(string $subUrl, string $triggers, string $nickname = null)
+    private function requests(string $subUrl, string $triggers, string $nickname = null): void
     {
-
         if (!$this->verifyGroup()) {
             return;
         }
 
         if (empty($subUrl) || empty($triggers)) {
-            $this->error = 'fill the required params!';
-            return;
-        }
-
-        $subLink = ($subUrl != '/' ? (strpos($subUrl, '/', 2) !== false ? strpos($subUrl, '/', 2) - 1 : strlen($subUrl)) : '');
-        $link    = ($subUrl == '/' ? '' : substr($subUrl, 1, $subLink));
-
-        if ($link != $this->method) {
-            return;
+            throw new Exception("Fill the required params!");
         }
 
         $dinamicParam = (strpos($subUrl, '{'));
-
         $params = [];
         $page   = null;
 
         if ($subUrl != '/') {
             $subUrl = explode('/', substr($subUrl, 1));
             $page   = $subUrl[0];
-            unset($subUrl[0]);
+            unset($subUrl[0]);    
             $params = $subUrl;
         } else {
             $page = '';
         }
 
-        $controller = explode(':', $triggers);
-        $namespace  = '\\Source\Controllers\\' . $controller[0];
-        $object     = new $namespace($this);
-
-        if ($page != $this->method || ($dinamicParam === false && array_diff($params, $this->params) != [])) {
-
-            $this->error = 'Urls do not match!';
-            return false;
+        if ($page != $this->page) {
+            return;
         }
 
+        if ($dinamicParam === false && array_diff($params, $this->params) != []) {
+            return;
+        }
+
+        $controller = explode(':', $triggers);
+        $namespace  = ($this->namespace ?? '\\Source\Controllers\\') . $controller[0];
+        $object     = new $namespace($this);
+
         if (!method_exists($object, $controller[1])) {
-            $this->error = 'Method Not Exists';
-            return false;
+            throw new Exception('Method Not Exists');
         }
 
         $params = ($dinamicParam !== false ?
@@ -189,9 +166,8 @@ class Router
             $params);
 
         $this->controllerDispatch = $object;
-        $this->methodDispatch     = $controller[1];
+        $this->pageDispatch     = $controller[1];
         $this->paramsDispatch     = $params;
-
     }
 
     /**
@@ -204,11 +180,13 @@ class Router
      */
     public function post(string $subUrl, string $triggers, string $nickname = null): void
     {
-
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $this->requests($subUrl, $triggers);
+            try {
+                $this->requests($subUrl, $triggers);    
+            } catch (Exception $e) {
+                echo json_encode($e->getMessage());
+            }
         }
-
     }
 
     /**
@@ -221,12 +199,13 @@ class Router
      */
     public function get(string $subUrl, string $triggers, string $nickname = null): void
     {
-
         if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-
-            $this->requests($subUrl, $triggers);
+            try {
+                $this->requests($subUrl, $triggers);    
+            } catch (Exception $e) {
+                echo $e->getMessage();
+            }
         }
-
     }
 
     /**
@@ -250,13 +229,11 @@ class Router
      */
     public function dispatch() : void
     {
-
-        if (!empty($this->controllerDispatch) && !empty($this->methodDispatch) && isset($this->paramsDispatch)) {
-            call_user_func_array([$this->controllerDispatch, $this->methodDispatch], [$this->paramsDispatch]);
+        if (!empty($this->controllerDispatch) && !empty($this->pageDispatch) && isset($this->paramsDispatch)) {
+            call_user_func_array([$this->controllerDispatch, $this->pageDispatch], [$this->paramsDispatch]);
         } else {
             $this->error = 'No one compatible requisition!';
         }
-
     }
 
     /**
@@ -269,14 +246,15 @@ class Router
      */
     private function clearParams(array $params)
     {
-
         if (!empty($params)) {
-
             $params = str_replace(['{', '}'], '', $params);
             return $params;
-
         }
         return;
     }
 
+    public static function getNamespace(string $namespace): ?string
+    {
+        return $namespace;        
+    }
 }

@@ -25,10 +25,12 @@ $router->get("/about", "Web:about");
  */
 $router->group('/order');
 $router->get("/", "WebOrder:home");
-$router->get("/home", "WebOrder:home");
+// $router->get("/home", "WebOrder:home");
 $router->get("/login", "WebOrder:login");
 $router->get("/login/register", "WebOrder:register");
 $router->get("/login/recover", "WebOrder:recover");
+
+
 $router->get("/address", "WebOrder:address");
 $router->get("/payment", "WebOrder:payment");
 $router->get("/confirmation", "WebOrder:confirmation");

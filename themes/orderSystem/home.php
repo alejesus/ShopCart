@@ -26,7 +26,5 @@
 	</div>
 
 <?php $v->start('scripts');?>
-
-<script src="<?=asset('js/cart.js');?>"></script>
-
+<?php require path('js/cart.php'); ?>
 <?php $v->end();?>
