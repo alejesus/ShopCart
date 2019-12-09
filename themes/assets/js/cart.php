@@ -1,6 +1,5 @@
 <script>
 $(function(){
-
 		/**
 		* Executa a ação determinada pela rota em cada botão clicado no carrinho.
 		* Performs the action determined by the route on each button clicked on the cart.
@@ -78,7 +77,5 @@ $(function(){
 			}
 
 		}
-
-
 	});
 </script>

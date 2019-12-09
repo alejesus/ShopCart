@@ -3,12 +3,6 @@ $v->layout('orderSystem/_template', ['title' => 'Payment']);
 header('Location: ' . $goToUrl);
 ?>
 
-<style>
-	h1, p, label{
-		color: #fff;
-	}
-</style>
-
 	<h1>Payment FILE<h1>
 
 	<!-- <form method="post" data-action="<?=$router->route('payment.billet');?>">
@@ -20,13 +14,13 @@ header('Location: ' . $goToUrl);
 		<input type="text" name="currency" value="BRL"><br>
 		<input type="text" name="extraAmount" value="<?=(!empty($carts['discount']) ? number_format(-($carts['subtotal'] * $carts['discount']), 2, '.', '') : number_format(0, 2, '.', ''));?>"><br>
 
-		<?php $i = 0;foreach ($carts['items'] as $cart): $i++;
+		<?php $i        = 0;foreach ($carts['items'] as $cart): $i++;
     $priceDiscounted = (!empty($cart['discount']) ? $cart['price'] - ($cart['price'] * $cart['discount']) : $cart['price']);?>
-				<input type="text" name="itemId<?=$i;?>" value="<?=$cart['id'];?>"><br>
-				<input type="text" name="itemDescription<?=$i;?>" value="<?=$cart['product'];?>"><br>
-				<input id="itemAmout" type="text" name="itemAmount<?=$i;?>" value="<?=number_format(str_replace(',', '.', $priceDiscounted), 2, '.', '');?>"><br>
-				<input type="text" name="itemQuantity<?=$i;?>" value="<?=$cart['amount'];?>"><br>
-			<?php endforeach;?>
+						<input type="text" name="itemId<?=$i;?>" value="<?=$cart['id'];?>"><br>
+						<input type="text" name="itemDescription<?=$i;?>" value="<?=$cart['product'];?>"><br>
+						<input id="itemAmout" type="text" name="itemAmount<?=$i;?>" value="<?=number_format(str_replace(',', '.', $priceDiscounted), 2, '.', '');?>"><br>
+						<input type="text" name="itemQuantity<?=$i;?>" value="<?=$cart['amount'];?>"><br>
+					<?php endforeach;?>
 
 		<input type="text" name="reference" value="<?=rand();?>"><br>
 
@@ -70,11 +64,11 @@ header('Location: ' . $goToUrl);
 
 		<?php $i        = 0;foreach ($carts['items'] as $cart): $i++;
     $priceDiscounted = (!empty($cart['discount']) ? $cart['price'] - ($cart['price'] * $cart['discount']) : $cart['price']);?>
-				<input type="text" name="itemId<?=$i;?>" value="<?=$cart['id'];?>"><br>
-				<input type="text" name="itemDescription<?=$i;?>" value="<?=$cart['product'];?>"><br>
-				<input id="itemAmout" type="text" name="itemAmount<?=$i;?>" value="<?=number_format(str_replace(',', '.', $priceDiscounted), 2, '.', '');?>"><br>
-				<input type="text" name="itemQuantity<?=$i;?>" value="<?=$cart['amount'];?>"><br>
-			<?php endforeach;?>
+						<input type="text" name="itemId<?=$i;?>" value="<?=$cart['id'];?>"><br>
+						<input type="text" name="itemDescription<?=$i;?>" value="<?=$cart['product'];?>"><br>
+						<input id="itemAmout" type="text" name="itemAmount<?=$i;?>" value="<?=number_format(str_replace(',', '.', $priceDiscounted), 2, '.', '');?>"><br>
+						<input type="text" name="itemQuantity<?=$i;?>" value="<?=$cart['amount'];?>"><br>
+					<?php endforeach;?>
 
 		<input type="text" name="reference" value="<?=rand();?>"><br>
 
@@ -104,7 +98,6 @@ header('Location: ' . $goToUrl);
  -->
 
 <form method="post" data-action="<?=$router->route('payment.creditcard');?>">
-
 		<input id="session" type="text" name="session" value=""><br>
 		<input type="text" name="paymentMode" value="default"><br>
 		<input id="payment" type="text" name="paymentMethod" value="creditCard"><br>
@@ -114,11 +107,11 @@ header('Location: ' . $goToUrl);
 
 		<?php $i        = 0;foreach ($carts['items'] as $cart): $i++;
     $priceDiscounted = (!empty($cart['discount']) ? $cart['price'] - ($cart['price'] * $cart['discount']) : $cart['price']);?>
-				<input type="text" name="itemId<?=$i;?>" value="<?=$cart['id'];?>"><br>
-				<input type="text" name="itemDescription<?=$i;?>" value="<?=$cart['product'];?>"><br>
-				<input id="itemAmout" type="text" name="itemAmount<?=$i;?>" value="<?=number_format(str_replace(',', '.', $priceDiscounted), 2, '.', '');?>"><br>
-				<input type="text" name="itemQuantity<?=$i;?>" value="<?=$cart['amount'];?>"><br>
-			<?php endforeach;?>
+						<input type="text" name="itemId<?=$i;?>" value="<?=$cart['id'];?>"><br>
+						<input type="text" name="itemDescription<?=$i;?>" value="<?=$cart['product'];?>"><br>
+						<input id="itemAmout" type="text" name="itemAmount<?=$i;?>" value="<?=number_format(str_replace(',', '.', $priceDiscounted), 2, '.', '');?>"><br>
+						<input type="text" name="itemQuantity<?=$i;?>" value="<?=$cart['amount'];?>"><br>
+					<?php endforeach;?>
 
 		<input type="text" name="reference" value="<?=rand();?>"><br>
 
@@ -172,12 +165,10 @@ header('Location: ' . $goToUrl);
 		<input type="text" name="billingAddressCity" value="<?=$address->city;?>"><br>
 		<input type="text" name="billingAddressState" value="<?=$address->uf;?>"><br>
 		<input type="text" name="billingAddressCountry" value="BRA"><br>
-
 		<button>Pagar</button>
-
 	</form>
 
-<?php $v->start('scripts'); ?>
+<?php $v->start('scripts');?>
 <script type="text/javascript" src="<?=URL_DIRECTPAYMENT_PAGSEGURO;?>"></script>
-<?php require path('js/payment.php'); ?>
-<?php $v->end(); ?>
+<?php require path('js/payment.php');?>
+<?php $v->end();?>

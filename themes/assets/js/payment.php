@@ -1,6 +1,5 @@
 <script>
 $(function(){
-
 	/**
 	* Cria sessão do pagseguro.
 	* Create pagseguro's session
@@ -25,6 +24,7 @@ $(function(){
 	* Submit the completed payment details on the form.
 	**/
 	$('body').on('submit', 'form', function(e){
+
 		e.preventDefault();
 
 		var data = $(this).serializeArray();
@@ -33,7 +33,7 @@ $(function(){
 		$.post(url, data, function(payment){
 
 			if(payment.error){
-				console.log(payment.error);	
+				console.log(payment.error);
 			}
 
 			if(payment.url){
@@ -41,8 +41,6 @@ $(function(){
 			}
 
 		}, 'json');
-
-
 	});
 
 	/**
@@ -89,7 +87,6 @@ $(function(){
 			});
 
 		});
-
 	}
 
 	/**
@@ -134,7 +131,6 @@ $(function(){
 			    }
 			});
 
-
 			PagSeguroDirectPayment.getInstallments({
 	        amount: amount,
 	        maxInstallmentNoInterest: <?=NO_INTEREST_INSTALLMENTS;?>,
@@ -162,7 +158,6 @@ $(function(){
 	            // console.log(response);
 	       }
 		});
-
 	});
 
 		// Exibe opções de parcelamentos disponíveis ao comprador
@@ -209,8 +204,6 @@ $(function(){
 			});
 
 		});
-
-
 	}
 });
 </script>

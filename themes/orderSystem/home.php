@@ -1,19 +1,19 @@
-<?php $v->layout('orderSystem/_template', ['title' => 'Cart']); ?>
+<?php $v->layout('orderSystem/_template', ['title' => 'Cart']);?>
 
 	<section class="products">
 		<div class="cart_message"></div>
 		<?php if (!empty($products)): foreach ($products as $product): ?>
-			<article class="products_item">
-				<h1>(<span class="item_<?=$product->id;?>">0</span>) <?=$product->name;?></h1>
-				<p>R$ <?=number_format((isset($product->discount) ? $product->price - ($product->price * $product->discount) : $product->price), 2, ",", ".");?></p>
-				<div>
-					<button class="btn" data-action="<?=$router->route('cart.add', ['id' => $product->id]);?>">+</button>
-					<button class="btn cancel" data-action="<?=$router->route('cart.remove', ['id' => $product->id]);?>">
-						-
-					</button>
-				</div>
-			</article>
-			<?php endforeach;else: ?>
+				<article class="products_item">
+					<h1>(<span class="item_<?=$product->id;?>">0</span>) <?=$product->name;?></h1>
+					<p>R$ <?=number_format((isset($product->discount) ? $product->price - ($product->price * $product->discount) : $product->price), 2, ",", ".");?></p>
+					<div>
+						<button class="btn" data-action="<?=$router->route('cart.add', ['id' => $product->id]);?>">+</button>
+						<button class="btn cancel" data-action="<?=$router->route('cart.remove', ['id' => $product->id]);?>">
+							-
+						</button>
+					</div>
+				</article>
+				<?php endforeach;else: ?>
 			<div class="message error">Ainda Não Existem Produtos Cadastrados</div>
 		<?php endif;?>
 	</section>
@@ -26,5 +26,5 @@
 	</div>
 
 <?php $v->start('scripts');?>
-<?php require path('js/cart.php'); ?>
+<?php require path('js/cart.php');?>
 <?php $v->end();?>

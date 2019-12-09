@@ -19,6 +19,10 @@ body {
     background: #333333;
 }
 
+h1, p, label{
+    color: #fff;
+}
+
 .message {
     font-size: 0.8em;
     text-transform: uppercase;
@@ -57,6 +61,11 @@ body {
 .products_item h1 {
     font-size: 1em;
     text-align: left;
+    color: #000;
+}
+
+.products_item p {
+    color: #000;
 }
 
 .btn {

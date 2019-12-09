@@ -1,5 +1,4 @@
 <script>
-
 $(function(){
 	/**
 	* Exibe a sessão como os dados do pedido até o momento.
@@ -11,7 +10,6 @@ $(function(){
 
 	}, 'json');
 
-
 	/**
 	* Exibe a sessão como os dados do pedido até o momento.
 	* Displays the session as order data so far.
@@ -22,5 +20,4 @@ $(function(){
 
 	}, 'json');
 });
-
 </script>

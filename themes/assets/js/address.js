@@ -1,6 +1,4 @@
 $(function(){
-
-
 	$('body').on('submit', 'form', function(e){
 
 		e.preventDefault();
@@ -28,5 +26,4 @@ $(function(){
 	$.post("<?=$router->route('address.showaddress');?>", function(data){
 		console.log(data);
 	}, 'json');
-
 })

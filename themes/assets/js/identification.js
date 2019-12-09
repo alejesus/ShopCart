@@ -1,5 +1,4 @@
 $(function(){
-
 		/**
 		* Submete o formulário com os dados de cadastro ou login do usuário.
 		* Submit the form with user registration or login data.
@@ -36,5 +35,4 @@ $(function(){
 
 			console.log(identification);
 		}
-
 	});
