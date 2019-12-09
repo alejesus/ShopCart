@@ -25,7 +25,6 @@ $router->get("/about", "Web:about");
  */
 $router->group('/order');
 $router->get("/", "WebOrder:home");
-// $router->get("/home", "WebOrder:home");
 $router->get("/login", "WebOrder:login");
 $router->get("/login/register", "WebOrder:register");
 $router->get("/login/recover", "WebOrder:recover");

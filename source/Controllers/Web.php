@@ -15,9 +15,9 @@ class Web extends Controller
      * e após verificar se o método da página solicitada existe
      * o método é chamado para fornecer a página requisitada.
      */
-    public function __construct()
+    public function __construct($router)
     {
-        parent::__construct();
+        parent::__construct($router);
         // var_dump(ROOT . '/themes/order');
     }
 
@@ -28,16 +28,16 @@ class Web extends Controller
     public function home($products)
     {
         // var_dump($this->path, $this->urlMethod, $this->url);
-        var_dump($this->method);
-        var_dump($this->path . $this->urlMethod . '.php');
+        // var_dump($this->method);
+        // var_dump($this->path . $this->urlMethod . '.php');
 
-        $products          = (new Product)->listProducts();
-        $_POST['products'] = $products;
+        // $products          = (new Product)->listProducts();
+        // $_POST['products'] = $products;
 
-        if (!$this->verifyPath($this->path . $this->urlMethod . '.php')) {
-            $_POST['products'] = null;
-            return;
-        }
+        // if (!$this->verifyPath($this->path . $this->urlMethod . '.php')) {
+            // $_POST['products'] = null;
+            // return;
+        // }
 
     }
 

@@ -76,14 +76,14 @@ class Router
         $urls        = $this->url;
 
         if (empty($group) && $urls[0] != 'index') {
-            $this->routeGroup  = 'home';
+            $this->routeGroup  = '';
             $this->page = $urls[0];
             unset($urls[0]);
             $this->params = (!empty($urls) ? $urls : []);
         } else {
-            $this->routeGroup = ($urls[0] == 'index' ? 'home' : $urls[0]);
+            $this->routeGroup = $urls[0];
             unset($urls[0]);
-            $this->page = (!empty($urls[1]) ? $urls[1] : '');
+            $this->page = ($urls[1] ?? '');
             unset($urls[1]);
             $this->params = (!in_array('', $urls) ? $urls : []);
         }
@@ -99,14 +99,6 @@ class Router
      */
     private function verifyGroup(): bool
     {
-        if (!isset($this->group) && $this->routeGroup != 'home') {
-            return false;
-        }
-
-        if (!empty($this->group) && $this->routeGroup == 'home') {
-            return false;
-        }
-
         if (!empty($this->group) && $this->routeGroup != substr($this->group, 1)) {
             return false;
         }
@@ -122,27 +114,21 @@ class Router
      * @param string|null $nickname
      * @return type
      */
-    private function requests(string $subUrl, string $triggers, string $nickname = null): void
+    private function requests(string $subUrl, string $triggers): void
     {
         if (!$this->verifyGroup()) {
             return;
         }
 
-        if (empty($subUrl) || empty($triggers)) {
-            throw new Exception("Fill the required params!");
-        }
-
         $dinamicParam = (strpos($subUrl, '{'));
         $params = [];
-        $page   = null;
+        $page   = '';
 
         if ($subUrl != '/') {
             $subUrl = explode('/', substr($subUrl, 1));
             $page   = $subUrl[0];
             unset($subUrl[0]);    
             $params = $subUrl;
-        } else {
-            $page = '';
         }
 
         if ($page != $this->page) {
@@ -166,7 +152,7 @@ class Router
             $params);
 
         $this->controllerDispatch = $object;
-        $this->pageDispatch     = $controller[1];
+        $this->pageDispatch       = $controller[1];
         $this->paramsDispatch     = $params;
     }
 
@@ -184,7 +170,7 @@ class Router
             try {
                 $this->requests($subUrl, $triggers);    
             } catch (Exception $e) {
-                echo json_encode($e->getMessage());
+                echo json_encode($e->getMessage()) . '<br>';
             }
         }
     }
@@ -203,7 +189,7 @@ class Router
             try {
                 $this->requests($subUrl, $triggers);    
             } catch (Exception $e) {
-                echo $e->getMessage();
+                echo $e->getMessage() . '<br>';
             }
         }
     }
@@ -215,9 +201,7 @@ class Router
      */
     public function error():  ? string
     {
-
         return $this->error;
-
     }
 
     /**
@@ -251,10 +235,5 @@ class Router
             return $params;
         }
         return;
-    }
-
-    public static function getNamespace(string $namespace): ?string
-    {
-        return $namespace;        
     }
 }
