@@ -1,5 +1,4 @@
 <?php
-
 namespace Source\Support;
 
 /**
@@ -9,7 +8,6 @@ namespace Source\Support;
  */
 class Shipping
 {
-
     private $apiUrl;
     private $apiKey;
     private $endpoint;
@@ -33,31 +31,9 @@ class Shipping
      **/
     public function byPriceDeadline(array $build): void
     {
-
         $this->endpoint = API_SHIPPING_ENDPOINT_PRECO_PRAZO;
         $this->build    = $build;
         $this->post();
-    }
-
-    /**
-     * Método responsável pela comunicação e obtenção de dados da API.
-     * Method responsible for communicating and obtaining API data.
-     * @return void
-     **/
-    private function post(): void
-    {
-
-        $data = (!empty($this->apiKey) ? array_merge($this->apiKey, $this->build) : $this->build);
-        $url  = $this->apiUrl . $this->endpoint . '?' . http_build_query($data);
-
-        $channel = curl_init($url);
-        curl_setopt($channel, CURLOPT_POST, true);
-        curl_setopt($channel, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($channel, CURLOPT_POSTFIELDS, http_build_query($data));
-        curl_setopt($channel, CURLOPT_HTTPHEADER, []);
-        $this->callback = curl_exec($channel);
-        curl_close($channel);
-
     }
 
     /**
@@ -70,4 +46,22 @@ class Shipping
         return $this->callback;
     }
 
+    /**
+     * Método responsável pela comunicação e obtenção de dados da API.
+     * Method responsible for communicating and obtaining API data.
+     * @return void
+     **/
+    private function post(): void
+    {
+        $data = (!empty($this->apiKey) ? array_merge($this->apiKey, $this->build) : $this->build);
+        $url  = $this->apiUrl . $this->endpoint . '?' . http_build_query($data);
+
+        $channel = curl_init($url);
+        curl_setopt($channel, CURLOPT_POST, true);
+        curl_setopt($channel, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($channel, CURLOPT_POSTFIELDS, http_build_query($data));
+        curl_setopt($channel, CURLOPT_HTTPHEADER, []);
+        $this->callback = curl_exec($channel);
+        curl_close($channel);
+    }
 }

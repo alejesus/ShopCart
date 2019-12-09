@@ -1,5 +1,4 @@
 <?php
-
 namespace Source\Support;
 
 /**
@@ -9,7 +8,6 @@ namespace Source\Support;
  */
 class Payment
 {
-
     private $apiUrl;
     private $apiKey;
     private $endpoint;
@@ -54,11 +52,9 @@ class Payment
      **/
     public function withCard(array $build): void
     {
-
         $this->endpoint = API_PAYMENT_ENDPOINT_TRANSACTIONS;
         $this->build    = $build;
         $this->post();
-
     }
 
     /**
@@ -68,11 +64,9 @@ class Payment
      **/
     public function withOnlineDebt(array $build): void
     {
-
         $this->endpoint = API_PAYMENT_ENDPOINT_TRANSACTIONS;
         $this->build    = $build;
         $this->post();
-
     }
 
     /**
@@ -82,33 +76,9 @@ class Payment
      **/
     public function withBillet(array $build): void
     {
-
         $this->endpoint = API_PAYMENT_ENDPOINT_TRANSACTIONS;
         $this->build    = $build;
         $this->post();
-
-    }
-
-    /**
-     * Método responsável pela comunicação e obtenção de dados da API.
-     * Method responsible for communicating and obtaining API data.
-     * @return void
-     **/
-    private function post(): void
-    {
-
-        $header = (!empty(HEADER_X) ? [HEADER_X] : []);
-        $data   = (!empty($this->build) ? http_build_query($this->build) : '');
-        $url    = $this->apiUrl . $this->endpoint . '?' . http_build_query($this->apiKey);
-
-        $channel = curl_init($url);
-        curl_setopt($channel, CURLOPT_POST, true);
-        curl_setopt($channel, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($channel, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($channel, CURLOPT_HTTPHEADER, $header);
-        $this->callback = (curl_error($channel) ? curl_error($channel) : curl_exec($channel));
-        curl_close($channel);
-
     }
 
     /**
@@ -121,4 +91,23 @@ class Payment
         return $this->callback;
     }
 
+    /**
+     * Método responsável pela comunicação e obtenção de dados da API.
+     * Method responsible for communicating and obtaining API data.
+     * @return void
+     **/
+    private function post(): void
+    {
+        $header = (!empty(HEADER_X) ? [HEADER_X] : []);
+        $data   = (!empty($this->build) ? http_build_query($this->build) : '');
+        $url    = $this->apiUrl . $this->endpoint . '?' . http_build_query($this->apiKey);
+
+        $channel = curl_init($url);
+        curl_setopt($channel, CURLOPT_POST, true);
+        curl_setopt($channel, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($channel, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($channel, CURLOPT_HTTPHEADER, $header);
+        $this->callback = (curl_error($channel) ? curl_error($channel) : curl_exec($channel));
+        curl_close($channel);
+    }
 }
