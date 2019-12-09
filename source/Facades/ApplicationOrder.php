@@ -255,10 +255,14 @@ class ApplicationOrder
     /**
      * Verifica qualquer acesso incorreto pelo usuário no fluxo de compra.
      * Checks for any incorrect user access in the purchase flow.
-     * @return type
+     * @param string $step 
+     * @return string|null
      **/
-    public function verifyIncorrectAccess(string $step)
+    public function verifyIncorrectAccess(string $step): ?string
     {
+        if(!VERIFING_PURCHASE_FLOW){
+            return null;
+        }
 
         switch ($step) {
 
@@ -275,7 +279,7 @@ class ApplicationOrder
                     return $this->urlApp . 'address';
                 }
 
-                return false;
+                return null;
 
                 break;
 
@@ -289,7 +293,7 @@ class ApplicationOrder
                     return $this->urlApp . 'identification';
                 }
 
-                return false;
+                return null;
 
                 break;
 
@@ -307,7 +311,7 @@ class ApplicationOrder
                     return $this->urlApp . 'address';
                 }
 
-                return false;
+                return null;
 
                 break;
 
@@ -329,12 +333,12 @@ class ApplicationOrder
                     return $this->urlApp . 'payment';
                 }
 
-                return false;
+                return null;
 
                 break;
 
             default:
-                return;
+                return null;
                 break;
         }
     }

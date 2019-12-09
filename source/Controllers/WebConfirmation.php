@@ -2,6 +2,7 @@
 
 namespace Source\Controllers;
 
+use Source\Controllers\Controller;
 use Source\Facades\ApplicationOrder;
 
 /**
@@ -29,7 +30,7 @@ class WebConfirmation extends Controller
      */
     public function confirmation()
     {
-        echo $this->view->render($this->order->dirApp() . '/confirmation.php', 
+        echo $this->view->render($this->order->dirApp() . '/confirmation.php',
             [
                 'goToUrl' => $this->order->verifyIncorrectAccess('confirmation'),
                 'session' => $this->order->payment(),

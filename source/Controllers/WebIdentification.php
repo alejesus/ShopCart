@@ -2,11 +2,12 @@
 
 namespace Source\Controllers;
 
+use Exception;
+use Source\Controllers\Controller;
 use Source\Facades\ApplicationOrder;
 use Source\Facades\Identification;
 use Source\Models\Cart;
 use Source\Models\User;
-use Exception;
 
 /**
  * Classe responsável pela fase de identificação/cadastro do usuário
@@ -20,7 +21,6 @@ class WebIdentification extends Controller
 
     private $order;
     private $identification;
-    private $error;
 
     /**
      * Inicializa a herança da Classe Controller e os Facades Order e Identification.
@@ -51,7 +51,7 @@ class WebIdentification extends Controller
     public function login(): void
     {
         echo $this->view->render($this->order->dirApp() . '/login/index.php',
-        ['goToUrl' => $this->order->verifyIncorrectAccess('identification')]);
+            ['goToUrl' => $this->order->verifyIncorrectAccess('identification')]);
     }
 
     /**
@@ -62,7 +62,7 @@ class WebIdentification extends Controller
     public function register(): void
     {
         echo $this->view->render($this->order->dirApp() . '/login/signup.php',
-        ['goToUrl' => $this->order->verifyIncorrectAccess('identification')]);
+            ['goToUrl' => $this->order->verifyIncorrectAccess('identification')]);
     }
 
     /**
@@ -72,8 +72,8 @@ class WebIdentification extends Controller
      **/
     public function recover(): void
     {
-        echo $this->view->render($this->order->dirApp() . '/login/recover.php', 
-        ['goToUrl' => $this->order->verifyIncorrectAccess('identification')]);
+        echo $this->view->render($this->order->dirApp() . '/login/recover.php',
+            ['goToUrl' => $this->order->verifyIncorrectAccess('identification')]);
     }
 
     /**
@@ -99,22 +99,22 @@ class WebIdentification extends Controller
                 return;
             }
 
-            $dataCart = $this->order->cart();
+            $dataCart     = $this->order->cart();
             $dataShipment = ($this->order->shipment() ?? null);
 
-            if(!empty($dataCart)){
+            if (!empty($dataCart)) {
                 $cartId = $this->saveCartDB($user->id, $dataCart, $dataShipment);
                 $this->order->addCart($cartId);
             }
-            
+
+            $this->identification->signIn($user);
+            $this->order->addIdentification();
+
         } catch (Exception $e) {
             $jSon['error'] = $e->getMessage();
             echo json_encode($jSon);
             return;
         }
-
-        $this->identification->signIn($user);
-        $this->order->addIdentification();
 
         $this->nextStep($next);
     }
@@ -129,7 +129,7 @@ class WebIdentification extends Controller
         $data = $this->filterPostRequest();
         $next = $data['next'];
         unset($data['next']);
-        
+
         try {
 
             $data = $this->validateData($data);
@@ -139,11 +139,11 @@ class WebIdentification extends Controller
             $dataCart     = $this->order->cart();
             $dataShipment = ($this->order->shipment() ?? null);
 
-            if(!empty($dataCart)){
+            if (!empty($dataCart)) {
                 $cartId = $this->saveCartDB($userId, $dataCart, $dataShipment);
                 $this->order->addCart($cartId);
             }
-            
+
             $this->identification->signUp((new User)->findById($userId));
             $this->order->addIdentification();
 
@@ -157,39 +157,12 @@ class WebIdentification extends Controller
     }
 
     /**
-     * Cadastra novo usuário na base de dados.
-     * Register new user in the database.
-     * @param array $data
-     * @return int|null
-     */
-    private function saveUserDB(array $data):  ? int
-    {
-        $newUser             = new User();
-        $newUser->name       = $data['name'];
-        $newUser->pass       = $data['pass'];
-        $newUser->email      = $data['email'];
-        $newUser->cpf        = $data['cpf'];
-        $newUser->genre      = $data['genre'];
-        $newUser->birthdate  = $data['birthDate'];
-        $newUser->phone      = $data['phone'];
-        $newUser->whatsapp   = $data['whatsApp'];
-        $newUser->newsletter = $data['newsletter'];
-        $idUser              = $newUser->save();
-
-        if ($newUser->fail()) {
-            throw new Exception($this->ajaxMessage($newUser->fail()->getMessage(), 'error'));
-        }
-
-        return $idUser;
-    }
-
-    /**
      * Realiza o processo de recuperação de nova senha para o usuário que esqueceu suas credenciais.
      * Performs the new password recovery process for the user who has forgotten their credentials.
      * @param array|null $data
      * @return void
      */
-    public function forgetLogin(array $data = null) : void
+    public function forgetLogin(array $data = null): void
     {
 
     }
@@ -215,7 +188,7 @@ class WebIdentification extends Controller
      * @param array $data
      * @return array|null
      */
-    private function validateData(array $data):  ? array
+    protected function validateData(array $data):  ? array
     {
         if (in_array('', $data)) {
             throw new Exception($this->ajaxMessage('Preencha os campos obrigatórios!', 'warning'));
@@ -241,5 +214,32 @@ class WebIdentification extends Controller
         }
 
         return $data;
+    }
+
+    /**
+     * Cadastra novo usuário na base de dados.
+     * Register new user in the database.
+     * @param array $data
+     * @return int|null
+     */
+    private function saveUserDB(array $data) :  ? int
+    {
+        $newUser             = new User();
+        $newUser->name       = $data['name'];
+        $newUser->pass       = $data['pass'];
+        $newUser->email      = $data['email'];
+        $newUser->cpf        = $data['cpf'];
+        $newUser->genre      = $data['genre'];
+        $newUser->birthdate  = $data['birthDate'];
+        $newUser->phone      = $data['phone'];
+        $newUser->whatsapp   = $data['whatsApp'];
+        $newUser->newsletter = $data['newsletter'];
+        $idUser              = $newUser->save();
+
+        if ($newUser->fail()) {
+            throw new Exception($this->ajaxMessage($newUser->fail()->getMessage(), 'error'));
+        }
+
+        return $idUser;
     }
 }

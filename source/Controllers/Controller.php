@@ -23,7 +23,7 @@ abstract class Controller
     public function __construct($router, string $path = null)
     {
         $this->router = $router;
-        
+
         $this->view = Engine::create(dirname(ROOT, 1) . '/themes/', 'php');
         $this->view->addData(['router' => $this->router]);
     }
@@ -32,7 +32,7 @@ abstract class Controller
      * Exibe mensagem de erro padrão do sistema em ajax.
      * Displays standard system error message in ajax.
      **/
-    public function ajaxMessage(string $message, string $type) : string
+    public function ajaxMessage(string $message, string $type): string
     {
         return "<div class=\"message {$type}\">{$message}</div>";
     }
@@ -52,29 +52,17 @@ abstract class Controller
     }
 
     /**
-     * Verifica se o arquivo requisitado pela rota existe.
-     * Caso não existe, o usuário será redirecionado para a página de erro 404
-     * Checks if the file requested by the route exists.
-     * If not, user will be redirected to error page 404.
-     **/
-    protected function verifyPath($path): bool
+     * Valida e trata os dados de entrada fornecidos pelo usuário.
+     * Validates and handles user-supplied input data.
+     * @param array $data
+     * @return array|null
+     */
+    protected function validateData(array $data) :  ? array
     {
-        if (!file_exists($path)) {
-            $this->callBack();
-            return false;
+        if (in_array('', $data)) {
+            throw new Exception($this->ajaxMessage('Preencha os campos obrigatórios!', 'warning'));
         }
 
-        require $path;
-
-        return true;
-    }
-
-    /**
-     * Exibe página de erro 404.
-     * 404 Error Page Displays.
-     **/
-    protected function callBack()
-    {
-        echo 'Erro 404';
+        return $data;
     }
 }

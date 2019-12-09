@@ -3,7 +3,6 @@
 namespace Source\Controllers;
 
 use Source\Controllers\Controller;
-use Source\Models\Product;
 
 /**
  * Classe responsável por controlar a rota das páginas
@@ -35,8 +34,8 @@ class Web extends Controller
         // $_POST['products'] = $products;
 
         // if (!$this->verifyPath($this->path . $this->urlMethod . '.php')) {
-            // $_POST['products'] = null;
-            // return;
+        // $_POST['products'] = null;
+        // return;
         // }
 
     }

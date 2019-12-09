@@ -1,9 +1,9 @@
 <?php
 namespace Source\Controllers;
 
+use Exception;
 use Source\Models\Cart;
 use Source\Models\CartItems;
-use Exception;
 
 /**
  * Trait responsável pelo cadastro do carrinho de compras na base de dados.
@@ -20,7 +20,7 @@ trait SaveCartTrait
      * @param array|null $dataShipment
      * @return int
      */
-    private function saveCartDB(int $userId, array $dataCart, array $dataShipment = null): ?int
+    private function saveCartDB(int $userId, array $dataCart, array $dataShipment = null):  ? int
     {
         $cart             = new Cart();
         $cart->user_id    = $userId;

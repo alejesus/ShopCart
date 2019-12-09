@@ -2,13 +2,13 @@
 
 namespace Source\Controllers;
 
+use Exception;
 use Source\Controllers\Controller;
 use Source\Facades\ApplicationCart;
 use Source\Facades\ApplicationOrder;
 use Source\Facades\Identification;
 use Source\Models\Cart;
 use Source\Models\Product;
-use Exception;
 
 /**
  * Classe responsável pelas interações com o carrinho de compras.
@@ -20,7 +20,6 @@ class WebCart extends Controller
 
     private $order;
     private $cart;
-    private $error;
 
     /**
      * Inicializa configurações da classe Controller
@@ -110,7 +109,7 @@ class WebCart extends Controller
      **/
     public function finishCart()
     {
-        if(empty($this->cart->cart())){
+        if (empty($this->cart->cart())) {
             $jSon['error'] = $this->ajaxMessage('Adicione algum produto ao carrinho', 'info');
             echo json_encode($jSon);
             return;
@@ -124,14 +123,14 @@ class WebCart extends Controller
 
             } else {
 
-                $userId = $this->identification->identification()['id'];
+                $userId       = $this->identification->identification()['id'];
                 $dataCart     = $this->cart->cart();
                 $dataShipment = ($this->order->shipment() ?? null);
 
                 $cartId = $this->saveCartDB($userId, $dataCart, $dataShipment);
                 $this->order->addCart($cartId);
             }
-            
+
         } catch (Exception $e) {
             $jSon['error'] = $e->getMessage();
             echo json_encode($jSon);

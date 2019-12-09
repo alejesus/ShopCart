@@ -18,7 +18,6 @@ use Source\Facades\ApplicationOrder;
  */
 class WebOrder extends Controller
 {
-
     private $order;
     private $cart;
     private $identification;
@@ -120,23 +119,4 @@ class WebOrder extends Controller
     {
         $this->confirmation->confirmation();
     }
-
-    /**
-     * Controla o acesso do usuário ao sistema de fluxo de compra.
-     * Controls user access to the purchase flow system.
-     * @param string $page
-     * @return string
-     */
-    public function checkAccess(string $page)
-    {
-
-        $url = $this->order->verifyIncorrectAccess($page);
-
-        if (!$url || !VERIFING_PURCHASE_FLOW) {
-            return;
-        }
-
-        return $url;
-    }
-
 }

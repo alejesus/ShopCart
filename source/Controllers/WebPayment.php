@@ -2,13 +2,14 @@
 
 namespace Source\Controllers;
 
+use Exception;
+use Source\Controllers\Controller;
 use Source\Facades\ApplicationOrder;
 use Source\Facades\PaymentCart;
 use Source\Models\Cart;
 use Source\Models\Order;
 use Source\Models\OrderItem;
 use Source\Support\Payment;
-use Exception;
 
 /**
  * Classe responsável pela manipulação, tratamento e
@@ -17,11 +18,9 @@ use Exception;
  */
 class WebPayment extends Controller
 {
-
     private $order;
     private $payment;
     private $supportPay;
-    private $error;
 
     /**
      * Inicializa os objetos e classes herdadas necessárias para a classe.
@@ -43,10 +42,10 @@ class WebPayment extends Controller
     public function payment(): void
     {
         echo $this->view->render($this->order->dirApp() . '/payment.php', [
-            'goToUrl' => $this->order->verifyIncorrectAccess('payment'),
-            'carts' => $this->order->cart(),
-            'user' => $this->order->user(),
-            'address' => $this->order->address(),
+            'goToUrl'  => $this->order->verifyIncorrectAccess('payment'),
+            'carts'    => $this->order->cart(),
+            'user'     => $this->order->user(),
+            'address'  => $this->order->address(),
             'shipping' => $this->order->shipment(),
         ]);
     }
@@ -96,7 +95,7 @@ class WebPayment extends Controller
             }
 
             $this->updateCart();
-            $orderId = $this->saveOrderDB($data, $response);
+            $orderId  = $this->saveOrderDB($data, $response);
             $newOrder = (new Order())->findById($orderId);
 
             $this->payment->add($newOrder);
@@ -135,13 +134,13 @@ class WebPayment extends Controller
             }
 
             $this->updateCart();
-            $orderId = $this->saveOrderDB($data, $response);
+            $orderId  = $this->saveOrderDB($data, $response);
             $newOrder = (new Order())->findById($orderId);
 
             $this->payment->add($newOrder);
 
             $this->order->addPayment();
-            
+
         } catch (Exception $e) {
             $jSon['error'] = $e->getMessage();
             echo json_encode($jSon);
@@ -158,12 +157,11 @@ class WebPayment extends Controller
      */
     public function withBillet(): void
     {
-
         $data = $this->filterPostRequest();
 
         try {
 
-            $data = $this->validateData($data); 
+            $data = $this->validateData($data);
 
             $this->supportPay->withBillet($data);
             $response = json_decode(json_encode(simplexml_load_string($this->supportPay->callback())), true);
@@ -176,13 +174,13 @@ class WebPayment extends Controller
 
             $this->updateCart();
             $orderId = $this->saveOrderDB($data, $response);
-            
+
             $newOrder = (new Order())->findById($orderId);
 
             $this->payment->add($newOrder);
 
             $this->order->addPayment();
-            
+
         } catch (Exception $e) {
             $jSon['error'] = $e->getMessage();
             echo json_encode($jSon);
@@ -204,13 +202,32 @@ class WebPayment extends Controller
     }
 
     /**
+     * Valida e trata os dados de entrada fornecidos pelo usuário.
+     * Validates and handles user-supplied input data.
+     * @param array $data
+     * @return array|null
+     */
+    protected function validateData(array $data):  ? array
+    {
+        if (in_array('', $data)) {
+            throw new Exception($this->ajaxMessage('Preencha os campos obrigatórios!', 'warning'));
+        }
+
+        if ($data['paymentMethod'] == 'creditCard') {
+            $data['installmentValue'] = number_format($data['installmentValue'], 2, '.', '');
+        }
+
+        return $data;
+    }
+
+    /**
      * Atualiza carrinho com as informações de frete.
      * Updates cart with shipping information.
      * @return void
      */
-    private function updateCart(): void
+    private function updateCart() : void
     {
-        if(!$this->order->shipment()){
+        if (!$this->order->shipment()) {
             return;
         }
 
@@ -299,18 +316,4 @@ class WebPayment extends Controller
             }
         }
     }
-
-    private function validateData(array $data): ?array
-    {
-        if (in_array('', $data)) {
-            throw new Exception($this->ajaxMessage('Preencha os campos obrigatórios!', 'warning'));
-        }
-
-        if($data['paymentMethod'] == 'creditCard'){
-            $data['installmentValue'] = number_format($data['installmentValue'], 2, '.', '');    
-        }
-
-        return $data;
-    }
-
 }
