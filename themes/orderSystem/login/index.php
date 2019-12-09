@@ -7,7 +7,7 @@ header('Location: ' . $goToUrl);
 <h1>Login</h1>
 <!-- comprador: c29430053830363582212@sandbox.pagseguro.com.br -->
 <form method="post" name="form" data-action="<?=$router->route('identification.signin');?>">
-	<input type="text" name="action" value="signin">
+	<input type="hidden" name="action" value="signin">
 	<input type="text" name="next" value="<?=$next;?>">
 	<label>E-mail: <input id="email" type="email" name="email" value="" required></label><br>
 	<a href="<?=$router->route('order.login/recover') . (!empty($next) ? '&next=' . $next : '');?>" title="Recuperar Senha">Esqueceu?</a>

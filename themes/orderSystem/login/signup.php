@@ -8,7 +8,7 @@ header('Location: ' . $goToUrl);
 <!-- comprador: c29430053830363582212@sandbox.pagseguro.com.br -->
 
 <form method="post" name="form" data-action="<?=$router->route('identification.signup');?>">
-	<input type="text" name="action" value="signup">
+	<input type="hidden" name="action" value="signup">
 	<input type="text" name="next" value="<?=$next;?>">
 	<label>E-mail: <input id="email" type="email" name="email" value="" required></label><br>
 	<label>Senha: <input id="pass" type="password" name="pass" value="" required></label><br>
