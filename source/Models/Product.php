@@ -12,7 +12,7 @@ use Source\DataLayer\DataLayer;
  */
 class Product extends DataLayer
 {
-    const ENTITY = 'products';
+    private const ENTITY = 'products';
 
     /**
      * Inicializa camada DataLayer com a base de dados.

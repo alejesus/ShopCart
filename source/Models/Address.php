@@ -10,13 +10,12 @@ use Source\DataLayer\DataLayer;
  */
 class Address extends DataLayer
 {
-    const ENTITY = 'address';
+    private const ENTITY = 'address';
 
     /**
      * Herda atributos e ações do DataLayer.
      * Inherits attributes and actions from DataLayer
      **/
-
     public function __construct()
     {
         parent::__construct(self::ENTITY, ['user_id', 'cep', 'logradouro',

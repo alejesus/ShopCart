@@ -10,8 +10,12 @@ use Source\DataLayer\DataLayer;
  */
 class Cart extends DataLayer
 {
-    const ENTITY = 'carts';
+    private const ENTITY = 'carts';
 
+    /**
+     * Herda atributos e ações do DataLayer.
+     * Inherits attributes and actions from DataLayer
+     **/
     public function __construct()
     {
         parent::__construct(self::ENTITY, ['user_id', 'subtotal', 'total'], 'id', true);

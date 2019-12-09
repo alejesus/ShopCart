@@ -12,7 +12,7 @@ use Source\DataLayer\DataLayer;
  */
 class OrderItem extends DataLayer
 {
-    const ENTITY = 'orders_item';
+    private const ENTITY = 'orders_item';
 
     /**
      * Inicializa as ações e atributos da classe DataLayer herdada.
