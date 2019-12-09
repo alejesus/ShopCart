@@ -25,7 +25,6 @@ class ApplicationOrder
 
         $_SESSION['order'] = (!empty($_SESSION['order']) ? $_SESSION['order'] : []);
         // unset($_SESSION['order'], $_SESSION['cart'], $_SESSION['user'], $_SESSION['address'], $_SESSION['shipping']);
-
     }
 
     /**
@@ -35,21 +34,17 @@ class ApplicationOrder
      */
     public function dirApp(): string
     {
-
         return $this->dirApp;
-
     }
 
     /**
-     * Retorna a sessão do pedido iniciado.
+     * Retorna a sessão do pedido iniciado..
      * Returns the session of the started request.
      * @return array|null
      */
     public function showOrder():  ? array
     {
-
         return $_SESSION['order'];
-
     }
 
     /**
@@ -59,9 +54,7 @@ class ApplicationOrder
      */
     public function cart()
     {
-
         return ($_SESSION['order']['cart'] ?? []);
-
     }
 
     /**
@@ -71,9 +64,7 @@ class ApplicationOrder
      */
     public function shipment() :  ? array
     {
-
         return ($_SESSION['order']['shipping'] ?? null);
-
     }
 
     /**
@@ -83,9 +74,7 @@ class ApplicationOrder
      */
     public function user()
     {
-
         return ($_SESSION['order']['user'] ?? []);
-
     }
 
     /**
@@ -95,9 +84,7 @@ class ApplicationOrder
      */
     public function address()
     {
-
         return ($_SESSION['order']['address'] ?? []);
-
     }
 
     /**
@@ -107,9 +94,7 @@ class ApplicationOrder
      **/
     public function payment()
     {
-
         return ($_SESSION['order']['payment'] ?? []);
-
     }
 
     /**
@@ -119,15 +104,11 @@ class ApplicationOrder
      **/
     public function addCart(int $id = null) : void
     {
-
         $_SESSION['order']['cart'] = $_SESSION['cart'];
 
         if ($id) {
-
             $_SESSION['order']['cart']['id'] = $id;
-
         }
-
     }
 
     /**
@@ -137,9 +118,7 @@ class ApplicationOrder
      **/
     public function addIdentification(): void
     {
-
         $_SESSION['order']['user'] = $_SESSION['user'];
-
     }
 
     /**
@@ -149,10 +128,8 @@ class ApplicationOrder
      **/
     public function addAddress(): void
     {
-
         $_SESSION['order']['address']  = $_SESSION['address'];
         $_SESSION['order']['shipping'] = $_SESSION['shipping'];
-
     }
 
     /**
@@ -162,9 +139,7 @@ class ApplicationOrder
      **/
     public function addPayment(): void
     {
-
         $_SESSION['order']['payment'] = $_SESSION['payment'];
-
     }
 
     /**
@@ -174,9 +149,7 @@ class ApplicationOrder
      */
     public function nextStepCart():  ? string
     {
-
         return $this->urlApp;
-
     }
 
     /**
@@ -186,9 +159,7 @@ class ApplicationOrder
      */
     public function nextStepIdentification() :  ? string
     {
-
         return $this->urlApp . 'login';
-
     }
 
     /**
@@ -198,9 +169,7 @@ class ApplicationOrder
      */
     public function previousUrlIdentification(string $next) :  ? string
     {
-
         return $next;
-
     }
 
     /**
@@ -210,9 +179,7 @@ class ApplicationOrder
      */
     public function nextStepAddress() :  ? string
     {
-
         return $this->urlApp . 'address';
-
     }
 
     /**
@@ -222,7 +189,6 @@ class ApplicationOrder
      */
     public function nextStepPayment() :  ? string
     {
-
         return $this->urlApp . 'payment';
     }
 
@@ -233,9 +199,7 @@ class ApplicationOrder
      */
     public function nextStepConfirmation() :  ? string
     {
-
         return $this->urlApp . 'confirmation';
-
     }
 
     /**
@@ -243,7 +207,7 @@ class ApplicationOrder
      * Clears sessions with user purchase order data.
      * @return void
      **/
-    public function clear() : void
+    public function clear(): void
     {
         $_SESSION['order']    = [];
         $_SESSION['cart']     = [];
@@ -260,7 +224,7 @@ class ApplicationOrder
      **/
     public function verifyIncorrectAccess(string $step): ?string
     {
-        if(!VERIFING_PURCHASE_FLOW){
+        if(!VERIFYING_PURCHASE_FLOW){
             return null;
         }
 

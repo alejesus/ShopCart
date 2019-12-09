@@ -18,13 +18,11 @@ class Identification
      **/
     public function __construct()
     {
-
         if (!session_id()) {
             session_start();
         }
 
         $_SESSION['user'] = (!empty($_SESSION['user']) ? $_SESSION['user'] : []);
-
     }
 
     /**
@@ -32,11 +30,9 @@ class Identification
      * Returns the user session created after identification.
      * @return array|null
      **/
-    public function identification():  ? array
+    public function identification()
     {
-
-        return (array) $_SESSION['user'];
-
+        return $_SESSION['user'];
     }
 
     /**
@@ -46,7 +42,6 @@ class Identification
      **/
     public function signUp(User $data) : Identification
     {
-
         $_SESSION['user'] = $data->data();
 
         return $this;
@@ -59,11 +54,9 @@ class Identification
      **/
     public function signIn(User $data): Identification
     {
-
         $_SESSION['user'] = $data->data();
 
         return $this;
-
     }
 
     /**

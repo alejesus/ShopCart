@@ -10,7 +10,6 @@ use Source\Models\Address;
  */
 class DeliveryAddress
 {
-
     /**
      * Inicializa sessões de endereço de entrega e frete.
      * Initializes shipping and shipping address sessions.
@@ -23,7 +22,6 @@ class DeliveryAddress
 
         $_SESSION['address']  = (!empty($_SESSION['address']) ? $_SESSION['address'] : []);
         $_SESSION['shipping'] = (!empty($_SESSION['shipping']) ? $_SESSION['shipping'] : []);
-
     }
 
     /**
@@ -53,13 +51,7 @@ class DeliveryAddress
      **/
     public function add(Address $address): void
     {
-
-        if (empty($address->data())) {
-            return;
-        }
-
         $_SESSION['address'] = $address->data();
-
     }
 
     /**
@@ -69,13 +61,7 @@ class DeliveryAddress
      **/
     public function addShipping(array $shipping): void
     {
-
-        if (empty($shipping)) {
-            return;
-        }
-
         $_SESSION['shipping'] = $shipping;
-
     }
 
 }

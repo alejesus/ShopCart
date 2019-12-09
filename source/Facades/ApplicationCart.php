@@ -10,7 +10,6 @@ use Source\Models\Product;
  */
 class ApplicationCart
 {
-
     /**
      * Inicializa a classe verificando a existência de sessão
      * do sistema e do carrinho.
@@ -24,7 +23,6 @@ class ApplicationCart
         }
 
         $_SESSION['cart'] = (!empty($_SESSION['cart']) ? $_SESSION['cart'] : []);
-
     }
 
     /**
@@ -47,7 +45,6 @@ class ApplicationCart
     {
         $itemWithDiscount = (!empty($product->discount) ? $product->price - ($product->price * $product->discount) : $product->price);
 
-        $_SESSION['cart']['discount'] = 0.1;
         $_SESSION['cart']['amount']   = (!empty($_SESSION['cart']['amount']) ? $_SESSION['cart']['amount'] : 0);
         $_SESSION['cart']['amount'] += 1;
 
@@ -89,7 +86,6 @@ class ApplicationCart
      */
     public function remove(Product $product): ApplicationCart
     {
-
         if (!empty($_SESSION['cart']['items'][$product->id])) {
 
             $itemWithDiscount = (!empty($product->discount) ? $product->price - ($product->price * $product->discount) : $product->price);
@@ -107,7 +103,6 @@ class ApplicationCart
                 $_SESSION['cart']['items'][$product->id]['total'] -= $itemWithDiscount;
 
                 return $this;
-
             }
 
             unset($_SESSION['cart']['items'][$product->id]);
@@ -115,7 +110,6 @@ class ApplicationCart
         }
 
         return $this;
-
     }
 
     /**

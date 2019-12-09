@@ -18,7 +18,7 @@ header('Location: ' . $goToUrl);
 		<input type="text" name="paymentMethod" value="boleto"><br>
 		<input type="text" name="receiverEmail" value="<?=EMAIL_PAGSEGURO;?>"><br>
 		<input type="text" name="currency" value="BRL"><br>
-		<input type="text" name="extraAmount" value="<?=(!empty($carts['discount']) ? number_format(-($carts['subtotal'] * $carts['discount']), 2, '.', '') : 0.00);?>"><br>
+		<input type="text" name="extraAmount" value="<?=(!empty($carts['discount']) ? number_format(-($carts['subtotal'] * $carts['discount']), 2, '.', '') : number_format(0, 2, '.', ''));?>"><br>
 
 		<?php $i = 0;foreach ($carts['items'] as $cart): $i++;
     $priceDiscounted = (!empty($cart['discount']) ? $cart['price'] - ($cart['price'] * $cart['discount']) : $cart['price']);?>
@@ -60,6 +60,7 @@ header('Location: ' . $goToUrl);
 		<input id="session" type="text" name="session" value=""><br>
 		<input type="text" name="paymentMode" value="default"><br>
 		<input type="text" name="paymentMethod" value="eft"><br>
+		<input type="text" name="extraAmount" value="<?=(!empty($carts['discount']) ? number_format(-($carts['subtotal'] * $carts['discount']), 2, '.', '') : number_format(0, 2, '.', ''));?>"><br>
 
 		Itaú: <input id="itaubank" type="radio" name="bankName" value="itau"><br>
 		Bradesco: <input id="bradescobank" type="radio" name="bankName" value="bradesco"><br>
@@ -109,7 +110,7 @@ header('Location: ' . $goToUrl);
 		<input id="payment" type="text" name="paymentMethod" value="creditCard"><br>
 		<input type="text" name="receiverEmail" value="lfelipelopesti@gmail.com"><br>
 		<input type="text" name="currency" value="BRL"><br>
-		<input type="text" name="extraAmount" value="<?=(!empty($carts['discount']) ? number_format(-($carts['subtotal'] * $carts['discount']), 2, '.', '') : 0.00);?>"><br>
+		<input type="text" name="extraAmount" value="<?=(!empty($carts['discount']) ? number_format(-($carts['subtotal'] * $carts['discount']), 2, '.', '') : number_format(0, 2, '.', ''));?>"><br>
 
 		<?php $i        = 0;foreach ($carts['items'] as $cart): $i++;
     $priceDiscounted = (!empty($cart['discount']) ? $cart['price'] - ($cart['price'] * $cart['discount']) : $cart['price']);?>

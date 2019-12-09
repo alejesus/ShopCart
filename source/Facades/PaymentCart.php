@@ -10,7 +10,6 @@ use Source\Models\Order;
  */
 class PaymentCart
 {
-
     /**
      * Inicializa a sessão de pagamento.
      * Initializes the payment session.
@@ -22,7 +21,6 @@ class PaymentCart
         }
 
         $_SESSION['payment'] = (!empty($_SESSION['payment']) ? $_SESSION['payment'] : []);
-
     }
 
     /**
@@ -42,12 +40,7 @@ class PaymentCart
      **/
     public function add(Order $order): void
     {
-        if (empty($order)) {
-            return;
-        }
-
         $_SESSION['payment'] = $order->data();
-
     }
 
     /**
@@ -59,5 +52,4 @@ class PaymentCart
     {
         $_SESSION['payment'] = [];
     }
-
 }

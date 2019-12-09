@@ -123,7 +123,7 @@ class WebCart extends Controller
 
             } else {
 
-                $userId       = $this->identification->identification()['id'];
+                $userId       = $this->identification->identification()->id;
                 $dataCart     = $this->cart->cart();
                 $dataShipment = ($this->order->shipment() ?? null);
 
