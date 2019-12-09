@@ -45,7 +45,7 @@ class ApplicationCart
     {
         $itemWithDiscount = (!empty($product->discount) ? $product->price - ($product->price * $product->discount) : $product->price);
 
-        $_SESSION['cart']['amount']   = (!empty($_SESSION['cart']['amount']) ? $_SESSION['cart']['amount'] : 0);
+        $_SESSION['cart']['amount'] = (!empty($_SESSION['cart']['amount']) ? $_SESSION['cart']['amount'] : 0);
         $_SESSION['cart']['amount'] += 1;
 
         $_SESSION['cart']['subtotal'] = ($_SESSION['cart']['subtotal'] ?? 0);

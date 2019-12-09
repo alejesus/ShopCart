@@ -40,7 +40,7 @@ class Identification
      * Assigns the user session the data registered in the user register.
      * @return Identification
      **/
-    public function signUp(User $data) : Identification
+    public function signUp(User $data): Identification
     {
         $_SESSION['user'] = $data->data();
 

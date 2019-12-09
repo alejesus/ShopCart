@@ -207,7 +207,7 @@ class ApplicationOrder
      * Clears sessions with user purchase order data.
      * @return void
      **/
-    public function clear(): void
+    public function clear() : void
     {
         $_SESSION['order']    = [];
         $_SESSION['cart']     = [];
@@ -219,18 +219,18 @@ class ApplicationOrder
     /**
      * Verifica qualquer acesso incorreto pelo usuário no fluxo de compra.
      * Checks for any incorrect user access in the purchase flow.
-     * @param string $step 
+     * @param string $step
      * @return string|null
      **/
-    public function verifyIncorrectAccess(string $step): ?string
+    public function verifyIncorrectAccess(string $step):  ? string
     {
-        if(!VERIFYING_PURCHASE_FLOW){
+        if (!VERIFYING_PURCHASE_FLOW) {
             return null;
         }
 
         switch ($step) {
 
-            case 'identification':
+            case 'identification' :
 
                 if (!empty($_SESSION['user'])) {
 
